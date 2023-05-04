@@ -19,11 +19,9 @@ from .config import *
 def get_csrf_config():
     return CsrfSettings()
 
-
-
 app = FastAPI(title='KSSI', version = "Highest Version: 1.0.0", docs_url=None, redoc_url='/docs')
-login = LoginManager(LOGIN_SECRET_KEY, LOGIN_PATH_URI)
-sqlalchemy = SQLAlchemy(app=app, database_uri=SQLALCHEMY_DATABASE_URI)
+login = LoginManager(get_aws_secret('us-east-2', "api/secrets/login/key", 'API_LOGIN_SECRET_KEY'), LOGIN_PATH_URI)
+sqlalchemy = SQLAlchemy(app=app, database_uri=assemble_sqlalchemy_uri())
 
 # -----------------------
 # | FASTAPI MIDDLEWARES |
@@ -32,8 +30,6 @@ app.add_middleware(AsyncExitStackMiddleware)
 app.add_middleware(CORSMiddleware, allow_origins=CORS_ALLOWED_ORIGINS, 
                     allow_credentials=True, allow_methods=["*"], allow_headers=["*"])
 app.add_middleware(GZipMiddleware, minimum_size=GZIP_MINIMUM_SIZE)
-#app.add_middleware(TrustedHostMiddleware, allowed_hosts=TRUSTED_HOSTS) # uncomment these lines if you want that extra step in security
-# app.add_middleware(HTTPSRedirectMiddleware)
 
 # ----------------------
 # | CUSTOM MIDDLEWARES |
